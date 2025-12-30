@@ -4,16 +4,20 @@ import os
 import time
 import tkinter as tk
 from concurrent.futures import ProcessPoolExecutor
+from datetime import datetime
 from pathlib import Path
 from tkinter import filedialog
+from zoneinfo import ZoneInfo
 
 import psutil
-from PIL import Image
+from PIL import Image, ImageFile
 
 import my_logger
 import settings
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 logger = my_logger.my_logger(__name__)
+start_time = datetime.now(ZoneInfo("Asia/Tokyo"))
 
 
 def convert_image(file: Path) -> None:
@@ -35,8 +39,8 @@ def convert_image(file: Path) -> None:
             if sleep_time > 0:
                 time.sleep(sleep_time)
 
-    except Exception as e:
-        logger.exception(e)  # noqa: TRY401
+    except Exception:
+        logger.exception("file: %s", file)
 
 
 def main() -> None:  # noqa: D103
@@ -59,6 +63,12 @@ def main() -> None:  # noqa: D103
 
     with ProcessPoolExecutor(max_workers=settings.MAX_WORKERS) as executor:
         executor.map(convert_image, files)
+
+    end_time = datetime.now(ZoneInfo("Asia/Tokyo"))
+
+    logger.info("start_time: %s", str(start_time))
+    logger.info("end_time: %s", end_time)
+    logger.info("Execution time: %s", str(end_time - start_time))
 
 
 if __name__ == "__main__":
