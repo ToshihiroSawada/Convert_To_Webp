@@ -7,8 +7,46 @@ authors = [
     { name = "sawada", email = "use.github.mail@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "black>=25.12.0",
+    "isort>=7.0.0",
+    "pillow>=12.0.0",
+    "psutil>=7.2.1",
+    "ruff>=0.14.10",
+]
 
 [build-system]
 requires = ["uv_build>=0.9.18,<0.10.0"]
 build-backend = "uv_build"
+
+
+[tool.ruff]
+# チェック対象を最大限にする
+select = ["ALL"]
+
+# 除外ディレクトリ（必要に応じて追加）
+exclude = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    "migrations",
+]
+
+[tool.ruff.lint]
+select = [
+    "F",  # Flake8
+    "B",  # Black
+    "I",  # isort
+    "E",  # error
+    "W"   # warning
+]
+ignore = []
+fixable = ["ALL"]
+
+# isortの設定（blackスタイルでソート）
+[tool.isort]
+profile = "black"
+
+# blackの設定
+[tool.black]
+line-length = 88
