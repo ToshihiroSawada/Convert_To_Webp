@@ -1,17 +1,17 @@
 """main process."""
 
+import datetime
 import os
 import time
-import tkinter as tk
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pathlib import Path
-from tkinter import filedialog
 from zoneinfo import ZoneInfo
 
 import psutil
 from PIL import Image, ImageFile
 
+import gui
 import my_logger
 import settings
 
@@ -44,25 +44,38 @@ def convert_image(file: Path) -> None:
 
 
 def main() -> None:  # noqa: D103
-    root = tk.Tk()
-    root.withdraw()
+    app = gui.AppGui()
 
-    dir_path = filedialog.askdirectory(title="フォルダを選択してください")
-    if not dir_path:
-        return
+    try:
+        dir_path = app.select_directory()
+        if not dir_path:
+            return
 
-    path = Path(dir_path)
-    patterns = settings.FILE_TYPES
+        path = Path(dir_path)
+        patterns = settings.FILE_TYPES
 
-    files = []
-    for ptn in patterns:
-        files.extend(path.rglob(ptn))
+        if isinstance(patterns, str):
+            patterns = [patterns]
 
-    if not files:
-        return
+        files = []
+        for ptn in patterns:
+            files.extend([p for p in path.rglob(ptn) if p.is_file()])
 
-    with ProcessPoolExecutor(max_workers=settings.MAX_WORKERS) as executor:
-        executor.map(convert_image, files)
+        if not files:
+            return
+
+        app.setup_progress(len(files))
+
+        with ProcessPoolExecutor(max_workers=settings.MAX_WORKERS) as executor:
+            futures = [executor.submit(convert_image, f) for f in files]
+            while True:
+                done = sum(f.done() for f in futures)
+                app.update_progress(done)
+                if done == len(files):
+                    break
+
+    finally:
+        app.close()
 
     end_time = datetime.now(ZoneInfo("Asia/Tokyo"))
 
