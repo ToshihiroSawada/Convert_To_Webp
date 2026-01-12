@@ -78,6 +78,7 @@ def main() -> None:  # noqa: D103
 
     end_time = datetime.now(ZoneInfo("Asia/Tokyo"))
 
+    logger.info("\n\n")
     logger.info("start_time: %s", str(start_time))
     logger.info("end_time: %s", end_time)
     logger.info("Execution time: %s", str(end_time - start_time))
