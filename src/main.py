@@ -1,6 +1,5 @@
 """main process."""
 
-import datetime
 import os
 import time
 from concurrent.futures import ProcessPoolExecutor

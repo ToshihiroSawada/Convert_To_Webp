@@ -44,7 +44,7 @@ class AppGui:
                 per_item = elapsed / value
                 remaining = (self.total - value) * per_item
                 self.label.config(
-                    text=f"{value} / {self.total} (残り: {remaining:.1f}秒)"
+                    text=f"{value} / {self.total} (残り: {remaining:.1f}秒)",
                 )
             else:
                 self.label.config(text=f"{value} / {self.total} (計算中...)")
