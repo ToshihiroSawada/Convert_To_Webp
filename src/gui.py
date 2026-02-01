@@ -21,8 +21,26 @@ class AppGui:
         """Open dialog to select directory."""
         return filedialog.askdirectory(title="フォルダを選択してください")
 
+    def show_searching(self) -> None:
+        """Show searching status."""
+        self.root.deiconify()
+        self.root.title("検索中...")
+        self.root.geometry("500x150")
+        self.label = tk.Label(self.root, text="ファイルを検索中...")
+        self.label.pack(pady=20)
+        self.root.update()
+
+    def update_search_count(self, count: int) -> None:
+        """Update search count."""
+        if self.label:
+            self.label.config(text=f"検索中... {count} ファイル発見")
+        self.root.update()
+
     def setup_progress(self, total: int) -> None:
         """Initialize and show progress bar."""
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
         self.total = total
         self.start_time = time.time()
         self.root.deiconify()

@@ -2,7 +2,7 @@
 
 import os
 import time
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -50,6 +50,8 @@ def main() -> None:  # noqa: D103
         if not dir_path:
             return
 
+        app.show_searching()
+
         path = Path(dir_path)
         patterns = settings.FILE_TYPES
 
@@ -58,7 +60,11 @@ def main() -> None:  # noqa: D103
 
         files = []
         for ptn in patterns:
-            files.extend([p for p in path.rglob(ptn) if p.is_file()])
+            for p in path.rglob(ptn):
+                if p.is_file():
+                    files.append(p)
+                    if len(files) % 1000 == 0:
+                        app.update_search_count(len(files))
 
         if not files:
             return
@@ -66,12 +72,14 @@ def main() -> None:  # noqa: D103
         app.setup_progress(len(files))
 
         with ProcessPoolExecutor(max_workers=settings.MAX_WORKERS) as executor:
-            futures = [executor.submit(convert_image, f) for f in files]
-            while True:
-                done = sum(f.done() for f in futures)
-                app.update_progress(done)
-                if done == len(files):
-                    break
+            futures = []
+            for i, f in enumerate(files):
+                futures.append(executor.submit(convert_image, f))
+                if i % 1000 == 0:
+                    app.update_progress(0)
+
+            for i, _ in enumerate(as_completed(futures), 1):
+                app.update_progress(i)
 
     finally:
         app.close()
