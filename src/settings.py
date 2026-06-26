@@ -1,7 +1,7 @@
 """User Settings."""
 
 LOG_LEVEL = "INFO"
-FILE_TYPES = ["*.jpg", "*.jpeg", "*.jpg_large", "*.png", "*.bmp"]
+FILE_TYPES = ["*.jpg", "*.jpeg", "*.jpg_large", "*.png", "*.bmp", "*.ppm", "*.pgm"]
 QUALITY = 80
 MAX_WORKERS = 14
 CPU_LOAD = 80
